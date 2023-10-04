@@ -1,10 +1,6 @@
 import pygame
 import sys
 
-import sys
-
-import pygame
-
 pygame.init()
 
 width, height = 640, 400
@@ -36,26 +32,29 @@ JumpTrue = True
 jumping = False
 Grav = 1
 JumpVel = 1
-gravityTrue = None
+gravityTrue = False
 
 
 def jump():
     global jumping
     if jumping:
-        player.velY -= player.speed * 0.25
-        for num in range(numBlocks):
-            if abs(RectValues[num].top - player.rect.bottom) < 10 and player.velY < 0:
-                jumping = False
+        player.velY -= player.speed * 0.1
+        pygame.time.set_timer(pygame.USEREVENT, 1000)
+        if pygame.USEREVENT:
+            jumping = False
 
 
 def gravity():
     global gravityTrue
     if gravityTrue:
-        player.velY += Grav
+        player.velY += Grav * 1
     for num in range(numBlocks):
-        if abs(RectValues[num].top - player.rect.bottom) < 10 and player.velY < 0:
-            gravityTrue = False
-            player.y = RectValues[num].y - PlY
+        if player.rect.colliderect(RectValues[num]):
+            if abs(RectValues[num].top - player.rect.bottom) < 10 and player.velY < 0:
+                gravityTrue = False
+                player.y = RectValues[num].y - PlY
+            if not abs(RectValues[num].top - player.rect.bottom) < 10 and player.velY < 0:
+                gravityTrue = True
 
 
 # player stuff
@@ -101,7 +100,8 @@ def PlCollision():
     if player.rect.left <= 0:
         player.x = 0
     if player.rect.bottom >= height:
-        player.y = height - PlY
+        player.y = RectValues[0].y - PlY
+        gravityTrue = False
     if player.rect.top <= 0:
         player.y = 0
 
@@ -113,8 +113,7 @@ def PlCollision():
             print(player.velY)
             if abs(RectValues[num].top - player.rect.bottom) < CollisionTolerance and player.velY < 0:
                 player.y = RectValues[num].y - PlY
-                jumping = False
-                player.velY = JumpVel
+                
             if abs(RectValues[num].bottom - player.rect.top) < CollisionTolerance and player.velY > 0:
                 player.velY = 0
             if abs(RectValues[num].left - player.rect.right) < CollisionTolerance and player.velX > 0:
